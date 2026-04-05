@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-MetaboClaw aggregates metabolism and metabolomics skills from open-source repositories. Each skill retains its original license and attribution in its SKILL.md frontmatter (`upstream` field).
+metabolism-skills aggregates metabolism and metabolomics skills from open-source repositories. Each skill retains its original license and attribution in its SKILL.md frontmatter (`upstream` field).
 
 ## Source Repositories
 
@@ -55,4 +55,4 @@ MetaboClaw aggregates metabolism and metabolomics skills from open-source reposi
 
 ## Original Contributions
 
-Skills marked with no `upstream` field in their frontmatter are original contributions by MetaboClaw contributors, licensed under MIT.
+Skills marked with no `upstream` field in their frontmatter are original contributions by metabolism-skills contributors, licensed under MIT.

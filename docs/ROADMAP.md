@@ -1,41 +1,44 @@
-# MetaboClaw Roadmap
+# metabolism-skills Roadmap
 
-## Current Coverage (v0.1.0)
+## Current Coverage (v1.0.0)
 
-26 skills across 6 domains, aggregated from 3 open-source repositories.
+38 skills across 7 domains: 22 aggregated from open-source repositories + 12 original contributions.
 
-| Domain | Skills | Source |
-|--------|--------|--------|
-| ms-data-processing | pyopenms, matchms | K-Dense, LabClaw |
-| metabolic-modeling | cobrapy | K-Dense |
-| metabolomics-analysis | xcms-preprocessing, msdial-preprocessing, metabolite-annotation, normalization-qc, statistical-analysis, pathway-mapping, targeted-analysis, lipidomics | bioSkills |
-| pathway-analysis | bioservices (KEGG/Reactome/STRING) | K-Dense |
-| databases | metabolomics-workbench (x2), kegg-api, reactome-api, string-api | K-Dense, LabClaw |
-| multi-omics | mofa-integration, mixomics-analysis, data-harmonization, similarity-network | bioSkills |
-| systems-biology | flux-balance-analysis, metabolic-reconstruction, context-specific-models, gene-essentiality, model-curation | bioSkills |
+| Domain | Skills | Count |
+|--------|--------|-------|
+| ms-data-processing | pyopenms, matchms, gcms-processing, nmr-metabolomics, format-conversion, spatial-metabolomics | 6 |
+| metabolic-modeling | cobrapy | 1 |
+| metabolomics-analysis | xcms-preprocessing, msdial-preprocessing, metabolite-annotation, normalization-qc, statistical-analysis, pathway-mapping, targeted-analysis, lipidomics, pharmacometabolomics, clinical-metabolomics | 10 |
+| pathway-analysis | bioservices (KEGG/Reactome/STRING) | 1 |
+| databases | hmdb, metabolights, metabolomics-workbench (x2), kegg-api, reactome-api, string-api | 7 |
+| multi-omics | mofa-integration, mixomics-analysis, data-harmonization, similarity-network, mgwas-integration, microbiome-metabolomics | 6 |
+| systems-biology | flux-balance-analysis, metabolic-reconstruction, context-specific-models, gene-essentiality, model-curation, isotope-flux-analysis, network-visualization | 7 |
 
-## Gaps to Fill (Original Contributions)
+## Completed (v1.0.0)
 
-### High Priority
+All originally planned gaps have been filled:
 
-- [ ] **HMDB database lookup** -- Human Metabolome Database (220k+ metabolites), REST API access, metabolite annotation by HMDB ID, structure search
-- [ ] **GC-MS data processing** -- Deconvolution, NIST/AMDIS library matching, retention index calculation, specific to volatile/semi-volatile metabolites
-- [ ] **NMR metabolomics** -- 1D/2D NMR processing (Chenomx, MetaboMiner, rNMR), spectral binning, metabolite identification from NMR spectra
-- [ ] **MetaboLights database** -- EMBL-EBI metabolomics repository API, study retrieval, ISA-Tab format parsing
+- [x] HMDB database lookup
+- [x] GC-MS data processing
+- [x] NMR metabolomics
+- [x] MetaboLights database
+- [x] 13C metabolic flux analysis
+- [x] Metabolomics data format conversion
+- [x] Metabolite-gene association (mGWAS)
+- [x] Spatial metabolomics
+- [x] Metabolic network visualization
+- [x] Pharmacometabolomics
+- [x] Microbiome metabolomics
+- [x] Clinical metabolomics reporting
 
-### Medium Priority
+## Future Ideas
 
-- [ ] **13C metabolic flux analysis (13C-MFA)** -- Isotope labeling experiments, INCA/FluxML/OpenFLUX integration, mass isotopomer distribution analysis
-- [ ] **Metabolomics data format conversion** -- mzML/mzXML/RAW/WIFF interconversion, msConvert wrapper, vendor format handling
-- [ ] **Metabolite-gene association (mGWAS)** -- Metabolic QTL analysis, GWAS integration with metabolomics, Mendelian randomization for metabolites
-- [ ] **Spatial metabolomics** -- MALDI-MSI, DESI-MSI data processing, ion image generation, molecular histology
-
-### Low Priority
-
-- [ ] **Metabolic network visualization** -- Escher/MetExplore metabolic maps, pathway-level flux visualization, publication-ready diagrams
-- [ ] **Pharmacometabolomics** -- Drug metabolite profiling, CYP450 substrate prediction, ADME property prediction
-- [ ] **Microbiome metabolomics** -- Host-microbiome metabolite interactions, SCFA analysis, bile acid profiling
-- [ ] **Clinical metabolomics reporting** -- IEM (inborn errors of metabolism) screening, reference ranges, clinical decision support
+- [ ] **Stable isotope resolved metabolomics (SIRM)** -- Multi-tracer experiments, isotopologue analysis
+- [ ] **Single-cell metabolomics** -- SpaceM, mass cytometry metabolite panels
+- [ ] **Metabolomics data repositories** -- MassIVE, GNPS molecular networking
+- [ ] **Exposomics** -- Environmental metabolite profiling, biomonitoring
+- [ ] **Fluxomics visualization** -- Sankey diagrams for metabolic flux distributions
+- [ ] **Metabolite structure elucidation** -- SIRIUS/CSI:FingerID, molecular formula prediction from MS/MS
 
 ## Contributing
 

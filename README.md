@@ -1,16 +1,16 @@
-# MetaboClaw
+# metabolism-skills
 
-Curated AI agent skills for metabolism and metabolomics research. Built for [Claude Code](https://claude.com/claude-code) and compatible with any [OpenClaw](https://openclaw.ai/)-based agent runtime.
+Curated AI agent skills for metabolism and metabolomics research. Built for [Claude Code](https://claude.com/claude-code).
 
 ## Why
 
-Metabolism-related skills are scattered across multiple repositories and represent only 1.6% of the OpenClaw scientific ecosystem ([Claw4Science, 2026](https://claw4science.org)). MetaboClaw aggregates the best existing skills and fills gaps with original contributions, providing a single entry point for metabolomics researchers.
+Metabolism-related skills are scattered across multiple repositories and represent only 1.6% of the scientific AI agent ecosystem ([Claw4Science, 2026](https://claw4science.org)). This project aggregates the best existing skills and fills gaps with original contributions, providing a single entry point for metabolomics researchers.
 
 ## Installation
 
 ```bash
 # Add all skills
-npx skills add dailycafi/MetaboClaw
+npx skills add dailycafi/metabolism-skills
 
 # Or copy specific skills
 cp -r skills/metabolomics-analysis/xcms-preprocessing ~/.claude/skills/
@@ -24,6 +24,10 @@ cp -r skills/metabolomics-analysis/xcms-preprocessing ~/.claude/skills/
 |-------|------|-------------|
 | [pyopenms](skills/ms-data-processing/pyopenms/) | pyOpenMS | LC-MS/MS data processing, untargeted metabolomics pipeline |
 | [matchms](skills/ms-data-processing/matchms/) | matchms | Mass spectral similarity matching and compound identification |
+| [gcms-processing](skills/ms-data-processing/gcms-processing/) | XCMS/matchms | GC-MS deconvolution, NIST matching, retention index calculation |
+| [nmr-metabolomics](skills/ms-data-processing/nmr-metabolomics/) | nmrglue/speaq | 1D/2D NMR processing, binning, metabolite identification |
+| [format-conversion](skills/ms-data-processing/format-conversion/) | msConvert | RAW/WIFF/mzML/mzXML format conversion |
+| [spatial-metabolomics](skills/ms-data-processing/spatial-metabolomics/) | pyimzML | MALDI-MSI/DESI-MSI ion imaging and spatial analysis |
 
 ### Metabolic Modeling (`metabolic-modeling/`)
 
@@ -43,6 +47,8 @@ cp -r skills/metabolomics-analysis/xcms-preprocessing ~/.claude/skills/
 | [pathway-mapping](skills/metabolomics-analysis/pathway-mapping/) | MetaboAnalystR | KEGG/Reactome pathway enrichment |
 | [targeted-analysis](skills/metabolomics-analysis/targeted-analysis/) | Various | Targeted metabolomics quantification |
 | [lipidomics](skills/metabolomics-analysis/lipidomics/) | lipidr (R) | Lipidomics data analysis |
+| [pharmacometabolomics](skills/metabolomics-analysis/pharmacometabolomics/) | RDKit | Drug metabolite profiling, CYP450 prediction, ADME |
+| [clinical-metabolomics](skills/metabolomics-analysis/clinical-metabolomics/) | Python | IEM screening, newborn screening, clinical reporting |
 
 ### Pathway Analysis (`pathway-analysis/`)
 
@@ -54,6 +60,8 @@ cp -r skills/metabolomics-analysis/xcms-preprocessing ~/.claude/skills/
 
 | Skill | Tool | Description |
 |-------|------|-------------|
+| [hmdb](skills/databases/hmdb/) | REST API | Human Metabolome Database (220k+ metabolites) |
+| [metabolights](skills/databases/metabolights/) | REST API | EMBL-EBI MetaboLights repository |
 | [metabolomics-workbench](skills/databases/metabolomics-workbench/) | REST API | NIH Metabolomics Workbench (4,200+ studies) |
 | [metabolomics-workbench-api](skills/databases/metabolomics-workbench-api/) | REST API | Metabolomics Workbench endpoint reference |
 | [kegg-api](skills/databases/kegg-api/) | REST API | KEGG pathway/compound database |
@@ -68,6 +76,8 @@ cp -r skills/metabolomics-analysis/xcms-preprocessing ~/.claude/skills/
 | [mixomics-analysis](skills/multi-omics/mixomics-analysis/) | mixOmics (R) | Multivariate integration (sPLS, DIABLO) |
 | [data-harmonization](skills/multi-omics/data-harmonization/) | R | Cross-platform data harmonization |
 | [similarity-network](skills/multi-omics/similarity-network/) | SNFtool (R) | Similarity Network Fusion |
+| [mgwas-integration](skills/multi-omics/mgwas-integration/) | PLINK/coloc | Metabolite-gene association and Mendelian randomization |
+| [microbiome-metabolomics](skills/multi-omics/microbiome-metabolomics/) | mmvec/mixOmics | Host-microbiome metabolite interactions |
 
 ### Systems Biology (`systems-biology/`)
 
@@ -78,6 +88,8 @@ cp -r skills/metabolomics-analysis/xcms-preprocessing ~/.claude/skills/
 | [context-specific-models](skills/systems-biology/context-specific-models/) | COBRApy | Tissue/condition-specific models (GIMME/iMAT) |
 | [gene-essentiality](skills/systems-biology/gene-essentiality/) | COBRApy | Gene essentiality prediction |
 | [model-curation](skills/systems-biology/model-curation/) | memote | Model quality assessment and curation |
+| [isotope-flux-analysis](skills/systems-biology/isotope-flux-analysis/) | IsoCor/COBRApy | 13C metabolic flux analysis and isotope correction |
+| [network-visualization](skills/systems-biology/network-visualization/) | Escher/Cytoscape | Metabolic network maps with flux overlay |
 
 ## Credits & Attribution
 
@@ -93,7 +105,7 @@ See [LICENSES/NOTICE.md](LICENSES/NOTICE.md) for full per-skill attribution.
 
 ## Roadmap
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for planned skills including HMDB, GC-MS, NMR metabolomics, 13C-MFA, spatial metabolomics, and more.
+See [docs/ROADMAP.md](docs/ROADMAP.md) for future planned skills and improvement ideas.
 
 ## Contributing
 
