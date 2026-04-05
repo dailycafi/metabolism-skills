@@ -11,7 +11,17 @@ metadata:
 
 ## Overview
 
-The Human Metabolome Database (HMDB) is the most comprehensive freely available database of human metabolites, containing detailed information on over 220,000 metabolite entries. Each entry includes chemical, clinical, enzymatic, and molecular biology data. HMDB provides programmatic access through XML-based REST endpoints and a CSV search API for name, mass, and formula queries.
+The Human Metabolome Database (HMDB) is the most comprehensive freely available database of human metabolites, containing detailed information on over 220,000 metabolite entries. Each entry includes chemical, clinical, enzymatic, and molecular biology data.
+
+HMDB is organized into five interconnected sub-databases:
+
+1. **Metabolites** -- small molecule metabolites found in the human body
+2. **Proteins** -- enzymes and transporters linked to metabolites
+3. **Pathways** -- metabolic and signaling pathways (linked to SMPDB)
+4. **Diseases** -- metabolite-disease associations with biomarker information
+5. **Spectra** -- experimental NMR, MS/MS, and GC-MS reference spectra
+
+HMDB provides programmatic access through XML-based REST endpoints at `https://hmdb.ca`. Note that HMDB uses Cloudflare protection, so automated requests require a proper `User-Agent` header and may occasionally be challenged. For large-scale data access, use the bulk download files.
 
 ## When to Use This Skill
 
@@ -27,28 +37,50 @@ Verify:
 
 ```python
 import requests
-response = requests.get("https://hmdb.ca/metabolites/HMDB0000122.xml", timeout=30)
+
+response = requests.get(
+    "https://hmdb.ca/metabolites/HMDB0000122.xml",
+    headers={"User-Agent": "MetabolismSkill/1.0 (research use)"},
+    timeout=30,
+)
 print(f"Status: {response.status_code}")
+# Note: HMDB uses Cloudflare; a 403 response means the request was
+# challenged.  If this happens consistently, fall back to the bulk
+# XML download (see "Bulk Data Access" section below).
 ```
 
 ## Core Capabilities
 
 ### 1. Retrieve Metabolite Details by Accession
 
-Each HMDB metabolite has a unique accession (HMDB#######) and returns XML with comprehensive data.
+Each HMDB metabolite has a unique accession in the format HMDB####### (7 digits after the prefix, e.g., HMDB0000122 for D-glucose). The XML endpoint returns comprehensive data.
 
 ```python
 import requests
 import xml.etree.ElementTree as ET
 
+HEADERS = {"User-Agent": "MetabolismSkill/1.0 (research use)"}
+
 def fetch_metabolite(accession: str) -> ET.Element:
-    """Fetch a single metabolite record from HMDB."""
+    """Fetch a single metabolite record from HMDB.
+
+    Args:
+        accession: HMDB accession ID (e.g. "HMDB0000122").
+                   Must use the 7-digit format.
+
+    Returns:
+        Parsed XML root element.
+
+    Raises:
+        requests.exceptions.HTTPError: On non-2xx response (including
+            403 from Cloudflare challenge).
+    """
     url = f"https://hmdb.ca/metabolites/{accession}.xml"
-    response = requests.get(url, timeout=30)
+    response = requests.get(url, headers=HEADERS, timeout=30)
     response.raise_for_status()
     return ET.fromstring(response.content)
 
-# Example: look up glucose (HMDB0000122)
+# Example: look up D-glucose (HMDB0000122)
 root = fetch_metabolite("HMDB0000122")
 
 ns = "{http://www.hmdb.ca}"
@@ -130,21 +162,26 @@ for disease in extract_diseases(root):
 
 ### 4. Search by Name, Mass, or Formula
 
-HMDB provides a search interface that can be queried programmatically.
+HMDB provides a search interface that can be queried programmatically. These endpoints return HTML, so results are parsed with regex.
 
 ```python
+import re
+
 def search_by_name(query: str) -> list:
-    """Search HMDB metabolites by name."""
+    """Search HMDB metabolites by name.
+
+    Returns a deduplicated list of HMDB accession IDs found on the
+    search results page.
+    """
     url = "https://hmdb.ca/unearth/q"
     params = {
         "query": query,
         "searcher": "metabolites",
         "button": "",
     }
-    response = requests.get(url, params=params, timeout=30)
+    response = requests.get(url, params=params, headers=HEADERS, timeout=30)
     response.raise_for_status()
     # Returns HTML; parse accession links
-    import re
     accessions = re.findall(r'href="/metabolites/(HMDB\d+)"', response.text)
     return list(dict.fromkeys(accessions))  # deduplicate, preserve order
 
@@ -156,7 +193,10 @@ print(f"Found {len(results)} results: {results[:5]}")
 import time
 
 def search_by_mass(mass: float, tolerance: float = 0.05) -> list:
-    """Search HMDB by monoisotopic mass within a tolerance window."""
+    """Search HMDB by monoisotopic mass within a tolerance window.
+
+    Returns a deduplicated list of HMDB accession IDs.
+    """
     url = "https://hmdb.ca/spectra/ms/search"
     params = {
         "utf8": "true",
@@ -165,9 +205,8 @@ def search_by_mass(mass: float, tolerance: float = 0.05) -> list:
         "mode": "positive",
         "adduct_type": "M+H",
     }
-    response = requests.get(url, params=params, timeout=30)
+    response = requests.get(url, params=params, headers=HEADERS, timeout=30)
     response.raise_for_status()
-    import re
     accessions = re.findall(r'href="/metabolites/(HMDB\d+)"', response.text)
     return list(dict.fromkeys(accessions))
 
@@ -189,7 +228,7 @@ def batch_fetch_metabolites(accessions: list, delay: float = 1.0) -> list:
         delay: Seconds to wait between requests (respect server limits).
 
     Returns:
-        List of parsed XML root elements.
+        List of dicts with basic metabolite info or error messages.
     """
     results = []
     for i, accession in enumerate(accessions):
@@ -208,7 +247,8 @@ def batch_fetch_metabolites(accessions: list, delay: float = 1.0) -> list:
             time.sleep(delay)
     return results
 
-targets = ["HMDB0000122", "HMDB0000161", "HMDB0000064", "HMDB0000148"]
+# L-Alanine, L-Histidine, Creatine
+targets = ["HMDB0000161", "HMDB0000177", "HMDB0000064"]
 records = batch_fetch_metabolites(targets, delay=1.5)
 for rec in records:
     print(rec)
@@ -240,6 +280,54 @@ print(f"NMR spectra: {len(spectra['nmr'])}")
 print(f"MS spectra: {len(spectra['ms'])}")
 ```
 
+### 7. Bulk Data Access (Recommended for Large-Scale Analysis)
+
+For analysis involving more than a few dozen metabolites, download the full XML dump instead of making individual API requests. This avoids Cloudflare rate limiting and is significantly faster.
+
+```python
+import os
+import zipfile
+
+def download_hmdb_bulk(output_dir: str) -> str:
+    """Download the full HMDB metabolites XML archive.
+
+    The file is ~7 GB compressed and contains one XML record per
+    metabolite.  This is the recommended approach for large-scale
+    analysis.
+    """
+    url = "https://hmdb.ca/system/downloads/current/hmdb_metabolites.zip"
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "hmdb_metabolites.zip")
+
+    response = requests.get(
+        url,
+        headers=HEADERS,
+        stream=True,
+        timeout=600,
+    )
+    response.raise_for_status()
+
+    with open(output_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
+    return output_path
+
+def parse_hmdb_bulk_xml(zip_path: str):
+    """Iterate over metabolite records in the bulk XML download.
+
+    Yields one ET.Element per metabolite using iterparse to keep
+    memory usage manageable.
+    """
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        xml_name = [n for n in zf.namelist() if n.endswith(".xml")][0]
+        with zf.open(xml_name) as xml_file:
+            ns = "{http://www.hmdb.ca}"
+            for event, elem in ET.iterparse(xml_file, events=("end",)):
+                if elem.tag == f"{ns}metabolite":
+                    yield elem
+                    elem.clear()
+```
+
 ## Common Workflows
 
 ### Workflow 1: Identify Unknown Metabolite from MS Data
@@ -260,6 +348,7 @@ print(f"MS spectra: {len(spectra['ms'])}")
        root = fetch_metabolite(acc)
        xrefs = extract_cross_references(root)
        print(f"{acc}: KEGG={xrefs['kegg_id']}, PubChem={xrefs['pubchem_cid']}")
+       time.sleep(1.0)
    ```
 
 ### Workflow 2: Build a Pathway-Metabolite Map
@@ -291,21 +380,25 @@ print(f"MS spectra: {len(spectra['ms'])}")
 
 ## Best Practices
 
-1. **Rate limiting**: Always include at least a 1-second delay between requests. HMDB does not publish rate limits, but aggressive querying can result in IP blocks.
+1. **Include a User-Agent header**: HMDB is behind Cloudflare. Always send a descriptive `User-Agent` header (e.g. `"MetabolismSkill/1.0 (research use)"`) to reduce the chance of being blocked.
 
-2. **Use the namespace**: HMDB XML uses the `http://www.hmdb.ca` namespace. All `findtext` and `findall` calls must use the `{http://www.hmdb.ca}` prefix.
+2. **Rate limiting**: Always include at least a 1-second delay between requests. HMDB does not publish rate limits, but aggressive querying can result in IP blocks.
 
-3. **Handle missing fields**: Not all metabolites have complete records. Always check for `None` return values from `findtext`.
+3. **Use bulk downloads for large-scale work**: For more than ~50 metabolites, download the full XML dump from `https://hmdb.ca/system/downloads/current/hmdb_metabolites.zip` rather than hitting the API per-metabolite.
 
-4. **Cache responses locally**: For batch analysis, save XML files to disk to avoid repeated downloads.
+4. **Use the namespace**: HMDB XML uses the `http://www.hmdb.ca` namespace. All `findtext` and `findall` calls must use the `{http://www.hmdb.ca}` prefix.
 
-5. **Prefer accession lookups over search**: Direct accession queries (`/metabolites/HMDBXXXXXXX.xml`) are the most reliable and fastest endpoint.
+5. **Handle missing fields**: Not all metabolites have complete records. Always check for `None` return values from `findtext`.
 
-6. **Normalize accession format**: HMDB accessions should be zero-padded to 7 digits after the prefix (e.g., `HMDB0000122`, not `HMDB00122`).
+6. **Cache responses locally**: For batch analysis, save XML files to disk to avoid repeated downloads.
+
+7. **Prefer accession lookups over search**: Direct accession queries (`/metabolites/HMDBXXXXXXX.xml`) are the most reliable and fastest endpoint.
+
+8. **Normalize accession format**: HMDB accessions must be zero-padded to 7 digits after the prefix (e.g., `HMDB0000122`, not `HMDB00122`). Older literature may use a 5-digit format; always convert to 7 digits.
 
 ## Resources
 
 - **HMDB home**: https://hmdb.ca
-- **HMDB downloads**: https://hmdb.ca/downloads (full XML dumps, SDF files)
-- **HMDB API documentation**: https://hmdb.ca/about#citing
+- **HMDB downloads**: https://hmdb.ca/downloads (full XML dumps, SDF files, CSV)
+- **HMDB citing/about**: https://hmdb.ca/about#citing
 - **SMPDB (linked pathways)**: https://smpdb.ca

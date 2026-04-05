@@ -49,6 +49,7 @@ reference_ranges = {
     'C3_propionylcarnitine': {'mean': 2.0,   'sd': 0.8,  'unit': 'umol/L', 'upper_cutoff': 5.0,   'lower_cutoff': 0.2},
     'C5_isovalerylcarnitine':{'mean': 0.15,  'sd': 0.06, 'unit': 'umol/L', 'upper_cutoff': 0.45,  'lower_cutoff': 0.01},
     'C8_octanoylcarnitine':  {'mean': 0.10,  'sd': 0.05, 'unit': 'umol/L', 'upper_cutoff': 0.30,  'lower_cutoff': 0.01},
+    'C14_1_tetradecenoylcarnitine': {'mean': 0.12, 'sd': 0.06, 'unit': 'umol/L', 'upper_cutoff': 0.60, 'lower_cutoff': 0.01},
     'C16_palmitoylcarnitine':{'mean': 3.5,   'sd': 1.2,  'unit': 'umol/L', 'upper_cutoff': 7.0,   'lower_cutoff': 0.5},
 }
 
@@ -114,7 +115,7 @@ corrected['phe_tyr_ratio'] = corrected['phenylalanine'] / corrected['tyrosine'].
 screening_flags = pd.DataFrame({
     'sample_id': corrected['sample_id'],
     'phe_flag': corrected['phenylalanine'].apply(lambda x: 'ABNORMAL' if x > 120 else 'NORMAL'),
-    'phe_tyr_ratio_flag': corrected['phe_tyr_ratio'].apply(lambda x: 'ABNORMAL' if x > 2.5 else 'NORMAL'),
+    'phe_tyr_ratio_flag': corrected['phe_tyr_ratio'].apply(lambda x: 'ABNORMAL' if x > 3.0 else 'NORMAL'),
     'cit_flag': corrected['citrulline'].apply(lambda x: 'HIGH' if x > 45 else ('LOW' if x < 3 else 'NORMAL')),
 })
 ```
@@ -136,13 +137,14 @@ diagnostic_ratios['C3_C2'] = acylcarnitine_data['C3'] / acylcarnitine_data['C2']
 diagnostic_ratios['C5_C2'] = acylcarnitine_data['C5'] / acylcarnitine_data['C2'].replace(0, np.nan)
 diagnostic_ratios['C5_C3'] = acylcarnitine_data['C5'] / acylcarnitine_data['C3'].replace(0, np.nan)
 diagnostic_ratios['C8_C10'] = acylcarnitine_data['C8'] / acylcarnitine_data['C10'].replace(0, np.nan)
+diagnostic_ratios['C14_1_C16'] = acylcarnitine_data['C14_1'] / acylcarnitine_data['C16'].replace(0, np.nan)
 diagnostic_ratios['C0_C16_C18'] = acylcarnitine_data['C0'] / (
     acylcarnitine_data['C16'] + acylcarnitine_data['C18']
 ).replace(0, np.nan)
 
 disorder_profiles = {
     'MCADD': {'C8': ('>',  0.30), 'C8_C10': ('>', 1.5), 'C6': ('>', 0.15)},
-    'VLCADD': {'C14_1': ('>', 0.60), 'C14': ('>', 0.70)},
+    'VLCADD': {'C14_1': ('>', 0.60), 'C14_1_C16': ('>', 0.1), 'C14': ('>', 0.70)},
     'PA': {'C3': ('>', 5.0), 'C3_C2': ('>', 0.25)},
     'MMA': {'C3': ('>', 5.0), 'C3_C2': ('>', 0.25)},
     'IVA': {'C5': ('>', 0.45), 'C5_C2': ('>', 0.03)},
@@ -185,6 +187,7 @@ organic_acids = pd.read_csv('urine_organic_acids.csv', index_col='sample_id')
 creatinine = organic_acids.pop('creatinine_mmol_L')
 oa_normalized = organic_acids.div(creatinine, axis=0)
 
+# Reference ranges in mmol/mol creatinine (creatinine-normalized urine values)
 oa_reference = {
     'methylmalonic_acid':      {'mean': 2.5, 'sd': 1.5,  'alert_threshold': 15.0},
     'methylcitric_acid':       {'mean': 1.0, 'sd': 0.8,  'alert_threshold': 5.0},
@@ -226,10 +229,10 @@ import pandas as pd
 diagnostic_rules = [
     {'condition': 'PKU', 'omim': 261600,
      'primary_markers': {'phenylalanine': ('>', 120)},
-     'secondary_markers': {'phe_tyr_ratio': ('>', 2.5), 'tyrosine': ('<', 50)},
+     'secondary_markers': {'phe_tyr_ratio': ('>', 3.0), 'tyrosine': ('<', 50)},
      'confirmatory': ['PAH gene sequencing', 'BH4 loading test']},
     {'condition': 'MSUD', 'omim': 248600,
-     'primary_markers': {'leucine_isoleucine': ('>', 250)},
+     'primary_markers': {'leucine_isoleucine': ('>', 200)},
      'secondary_markers': {'valine': ('>', 250), 'alloisoleucine': ('>', 5)},
      'confirmatory': ['Alloisoleucine quantification', 'BCKDH enzyme assay']},
     {'condition': 'MMA', 'omim': 251000,

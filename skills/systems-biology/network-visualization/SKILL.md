@@ -107,7 +107,9 @@ builder.display_in_notebook()
 
 **Goal:** Save Escher maps as static images for manuscripts.
 
-**Approach:** Use the Builder's save methods to export HTML (for interactive supplementary) or embed in a figure workflow.
+**Approach:** Escher is primarily a JavaScript visualization tool with a Python wrapper
+for Jupyter. It can export to standalone HTML; for static SVG/PNG, use the browser-based
+export menu or take a screenshot approach.
 
 ```python
 import escher
@@ -118,14 +120,17 @@ builder = escher.Builder(
     reaction_styles=["color", "size"],
 )
 
-# Save as standalone HTML
+# Save as standalone HTML (interactive, good for supplementary materials)
 builder.save_html("flux_map.html")
 
-# Save as embedded HTML for supplementary materials
+# Save with bundled JS for offline viewing
 builder.save_html("flux_map_embedded.html", js_source="local")
 
-# For static PNG/SVG: open the HTML in a browser and use
-# the built-in Escher export menu (Export > SVG or PNG)
+# For static SVG/PNG for publication figures:
+# 1. Open the HTML in a browser
+# 2. Use Escher's built-in menu: Export > SVG or Export > PNG
+# 3. For high-DPI: set browser zoom or use Inkscape/Illustrator to
+#    re-export SVG at 300+ DPI with appropriate font sizes (8-12pt)
 ```
 
 ## py4cytoscape: Automated Network Analysis
@@ -141,23 +146,32 @@ import pandas as pd
 # Verify Cytoscape is running
 p4c.cytoscape_version_info()
 
-# Build edge table from metabolic reactions
+# Build node and edge tables from metabolic reactions
+nodes = pd.DataFrame({
+    "id": ["Glucose", "G6P", "F6P", "FBP", "G3P", "Pyruvate",
+           "Acetyl-CoA", "Lactate", "Citrate"],
+    "type": ["substrate", "intermediate", "intermediate", "intermediate",
+             "intermediate", "hub", "hub", "product", "TCA"],
+})
+
 edges = pd.DataFrame([
-    {"source": "Glucose", "target": "G6P", "reaction": "HK", "flux": 8.2},
-    {"source": "G6P", "target": "F6P", "reaction": "PGI", "flux": 4.9},
-    {"source": "F6P", "target": "FBP", "reaction": "PFK", "flux": 7.5},
-    {"source": "FBP", "target": "G3P", "reaction": "FBA", "flux": 7.5},
-    {"source": "G3P", "target": "Pyruvate", "reaction": "Lower glycolysis", "flux": 15.0},
-    {"source": "Pyruvate", "target": "Acetyl-CoA", "reaction": "PDH", "flux": 9.3},
-    {"source": "Pyruvate", "target": "Lactate", "reaction": "LDH", "flux": 5.1},
-    {"source": "Acetyl-CoA", "target": "Citrate", "reaction": "CS", "flux": 6.0},
+    {"source": "Glucose", "target": "G6P", "interaction": "HK", "flux": 8.2},
+    {"source": "G6P", "target": "F6P", "interaction": "PGI", "flux": 4.9},
+    {"source": "F6P", "target": "FBP", "interaction": "PFK", "flux": 7.5},
+    {"source": "FBP", "target": "G3P", "interaction": "FBA", "flux": 7.5},
+    {"source": "G3P", "target": "Pyruvate", "interaction": "Lower glycolysis", "flux": 15.0},
+    {"source": "Pyruvate", "target": "Acetyl-CoA", "interaction": "PDH", "flux": 9.3},
+    {"source": "Pyruvate", "target": "Lactate", "interaction": "LDH", "flux": 5.1},
+    {"source": "Acetyl-CoA", "target": "Citrate", "interaction": "CS", "flux": 6.0},
 ])
 
-# Create network in Cytoscape
+# Create network in Cytoscape (requires both nodes and edges DataFrames)
+# Edges must have 'source', 'target', and 'interaction' columns
 p4c.create_network_from_data_frames(
+    nodes=nodes,
     edges=edges,
     title="Glycolysis_TCA",
-    collection="Metabolic Networks"
+    collection="Metabolic Networks",
 )
 
 # Apply layout
@@ -168,29 +182,33 @@ style_name = "MetabolicFlux"
 p4c.create_visual_style(style_name)
 p4c.set_visual_style(style_name)
 
+# Continuous mapping: map flux values to edge widths
 p4c.set_edge_line_width_mapping(
     table_column="flux",
     table_column_values=[0, 5, 15],
     widths=[1, 4, 10],
     mapping_type="c",
-    style_name=style_name
+    style_name=style_name,
 )
 
+# Continuous mapping: map flux values to edge colors (diverging scale)
 p4c.set_edge_color_mapping(
     table_column="flux",
     table_column_values=[0, 7.5, 15],
     colors=["#2166ac", "#f7f7f7", "#b2182b"],
     mapping_type="c",
-    style_name=style_name
+    style_name=style_name,
 )
 
 # Set node shape and color
 p4c.set_node_shape_default("ELLIPSE", style_name=style_name)
 p4c.set_node_color_default("#66c2a5", style_name=style_name)
-p4c.set_node_label_mapping("name", style_name=style_name)
+# 'name' is the default node identifier column in Cytoscape
+p4c.set_node_label_mapping(table_column="name", style_name=style_name)
 
-# Export
-p4c.export_image("metabolic_network.png", resolution=300)
+# Export images
+# Note: 'resolution' param is deprecated in Cytoscape 3.10+; use 'zoom' instead
+p4c.export_image("metabolic_network.png", type="PNG", zoom=300)
 p4c.export_image("metabolic_network.svg", type="SVG")
 p4c.save_session("metabolic_network.cys")
 ```
@@ -324,12 +342,15 @@ edge_colors = [flux_dict.get(d["reaction"], 0) for _, _, d in graph.edges(data=T
 pos = nx.spring_layout(graph, k=2, seed=42)
 node_sizes = [300 * degree_cent.get(n, 0.01) + 50 for n in graph.nodes()]
 
+# Publication-quality settings
+plt.rcParams.update({"font.family": "Arial", "font.size": 10})
+
 fig, ax = plt.subplots(figsize=(16, 12))
 nx.draw_networkx_nodes(graph, pos, node_size=node_sizes, node_color="#66c2a5",
                         alpha=0.8, ax=ax)
 nx.draw_networkx_edges(graph, pos, edge_color=edge_colors,
                         edge_cmap=plt.cm.RdBu_r, width=1.5, alpha=0.6, ax=ax)
-nx.draw_networkx_labels(graph, pos, font_size=6, ax=ax)
+nx.draw_networkx_labels(graph, pos, font_size=8, ax=ax)
 sm = plt.cm.ScalarMappable(cmap=plt.cm.RdBu_r,
                             norm=plt.Normalize(vmin=min(edge_colors),
                                                vmax=max(edge_colors)))
@@ -366,7 +387,7 @@ with model:
 
 # Compute flux change
 flux_diff = {rxn_id: flux_anaerobic.get(rxn_id, 0) - flux_aerobic.get(rxn_id, 0)
-             for rxn_id in set(list(flux_aerobic.keys()) + list(flux_anaerobic.keys()))}
+             for rxn_id in flux_aerobic.keys() | flux_anaerobic.keys()}
 
 builder = escher.Builder(
     map_name="e_coli_core.Core metabolism",
@@ -390,8 +411,13 @@ builder.save_html("flux_diff_aerobic_vs_anaerobic.html")
 - For large networks (>500 nodes), use Cytoscape instead of matplotlib for interactive exploration
 - Always include a color scale legend in exported figures
 - Use Escher's built-in maps (available at https://escher.github.io) before creating custom maps
-- For publication: export as SVG then edit in Inkscape/Illustrator for final polish
 - When overlaying multiple data types, use separate visual channels (color for flux, size for confidence)
+- **Publication figures:** export as SVG then edit in Inkscape/Illustrator for final polish
+  - Use 300 DPI minimum for raster exports (600 DPI for line art)
+  - Font sizes: 8-12pt for labels, 10-14pt for axis titles
+  - Use colorblind-safe palettes (e.g., viridis, RdBu from ColorBrewer)
+  - Set `plt.rcParams["font.family"] = "Arial"` for journal compatibility
+  - Avoid thin hairline strokes that disappear in print
 
 ## Related Skills
 

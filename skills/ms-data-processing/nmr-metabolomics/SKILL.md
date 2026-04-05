@@ -116,7 +116,7 @@ spectrum_corrected = baseline_als(spectrum_real, lam=1e7, p=0.005)
 
 ### 4. Chemical Shift Referencing
 
-Reference to internal standard (TSP at 0.00 ppm for aqueous, DSS for D2O).
+Reference to internal standard (TSP at 0.00 ppm for aqueous samples, TMS at 0.00 ppm for organic solvents, DSS for aqueous D2O).
 
 ```python
 def reference_to_tsp(ppm_scale, spectrum_real, tsp_region=(-0.05, 0.05)):
@@ -187,8 +187,7 @@ library(speaq)
 spectra_matrix <- as.matrix(read.csv("spectra_matrix.csv", row.names = 1))
 ppm <- as.numeric(colnames(spectra_matrix))
 
-# Adaptive intelligent binning using speaq
-# Groups spectral data points that belong to the same signal
+# speaq2 workflow: detect peaks, group across samples, fill missing
 peaks <- getWaveletPeaks(
     Y.spec = spectra_matrix,
     X.ppm = ppm,
@@ -204,10 +203,14 @@ grouped <- PeakGrouper(
     verbose = FALSE
 )
 
-# Build feature matrix from grouped peaks
-feature_matrix <- BuildFeatureMatrix(grouped)
-cat("Features:", ncol(feature_matrix), "\n")
-cat("Samples:", nrow(feature_matrix), "\n")
+# Fill missing peaks and build feature matrix
+feature_matrix <- PeakFilling(
+    Y.grouped = grouped,
+    Y.spec = spectra_matrix,
+    X.ppm = ppm
+)
+cat("Features:", ncol(feature_matrix$peakMatrix), "\n")
+cat("Samples:", nrow(feature_matrix$peakMatrix), "\n")
 ```
 
 ### 6. Peak Picking and Metabolite Identification
@@ -304,10 +307,14 @@ for hit in identifications:
 # Load 2D HSQC Bruker data
 dic_2d, data_2d = ng.bruker.read("hsqc_experiment_dir/")
 
-# Process indirect dimension (13C)
+# Process direct dimension (1H) - operates on last axis
 data_2d = ng.proc_base.zf_size(data_2d, (512, 4096))
-data_2d = ng.proc_base.fft2(data_2d)
-data_2d = ng.proc_autophase.autops(data_2d, fn="acme", dim=1)
+data_2d = ng.proc_base.fft(data_2d)
+
+# Process indirect dimension (13C) - transpose, process, transpose back
+data_2d = data_2d.T
+data_2d = ng.proc_base.fft(data_2d)
+data_2d = data_2d.T
 
 # 2D HSQC cross-peaks confirm metabolite assignments
 # e.g., lactate: 1H 1.33 ppm / 13C 20.8 ppm (methyl)
@@ -415,7 +422,7 @@ cat("Bucketed features:", ncol(bucketed), "\n")
 
 ## Best Practices
 
-- **Always reference to TSP** (0.00 ppm) for aqueous samples or DSS for organic/D2O samples
+- **Always reference to TSP** (0.00 ppm) for aqueous samples, TMS (0.00 ppm) for organic solvents, or DSS for aqueous D2O samples
 - **Exclude the water region** (4.7-5.0 ppm) from all analyses to avoid artifacts
 - **Use 0.3 Hz line broadening** as default; increase to 0.5-1.0 Hz for noisy spectra
 - **PQN normalization** is preferred over total area normalization for biofluids

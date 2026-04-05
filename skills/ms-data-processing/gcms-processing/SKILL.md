@@ -93,7 +93,8 @@ raw_data <- readMSData(raw_files, mode = "onDisk")
 
 # CentWave parameters optimized for GC-MS
 # - peakwidth: GC peaks are typically 2-10 seconds (narrower than LC)
-# - ppm: unit-mass GC-MS needs wider tolerance (~30-40 ppm)
+# - ppm: unit-mass GC-MS needs wider tolerance (~30-40 ppm);
+#         for HR-GC-MS (e.g., GC-Orbitrap), use 5-10 ppm instead
 # - noise: adjust to instrument baseline
 cwp <- CentWaveParam(
     peakwidth = c(2, 10),
@@ -113,20 +114,52 @@ cat("Peaks detected:", nrow(chromPeaks(xdata)), "\n")
 
 Retention indices normalize retention times against an alkane ladder, enabling cross-instrument comparison.
 
-**Kovats Retention Index** (temperature-programmed):
+**Kovats Retention Index** (isothermal GC, uses logarithmic interpolation):
 
 ```python
 import numpy as np
 
 def kovats_ri(rt_compound, alkane_rts, alkane_carbons):
-    """Calculate Kovats retention index for temperature-programmed GC.
+    """Calculate Kovats retention index for isothermal GC.
+
+    Uses the original Kovats logarithmic formula:
+    RI = 100 * (n + (log(tR(x)) - log(tR(n))) / (log(tR(n+1)) - log(tR(n))))
 
     Args:
         rt_compound: retention time of the target compound (seconds)
         alkane_rts: list of alkane retention times (seconds), sorted ascending
         alkane_carbons: list of carbon numbers matching alkane_rts
     """
-    alkane_rts = np.array(alkane_rts)
+    alkane_rts = np.array(alkane_rts, dtype=np.float64)
+    alkane_carbons = np.array(alkane_carbons)
+
+    idx = np.searchsorted(alkane_rts, rt_compound) - 1
+    idx = max(0, min(idx, len(alkane_rts) - 2))
+
+    n_z = alkane_carbons[idx]
+    rt_z = alkane_rts[idx]
+    rt_z1 = alkane_rts[idx + 1]
+
+    ri = 100 * (n_z + (np.log(rt_compound) - np.log(rt_z)) / (np.log(rt_z1) - np.log(rt_z)))
+    return ri
+```
+
+**Linear Retention Index (LTPRI)** (temperature-programmed GC, most common in metabolomics):
+
+```python
+def linear_ri(rt_compound, alkane_rts, alkane_carbons):
+    """Calculate linear (temperature-programmed) retention index.
+
+    For temperature-programmed GC, retention times increase linearly with
+    carbon number, so the simpler linear interpolation formula is used:
+    RI = 100 * (n + (tR(x) - tR(n)) / (tR(n+1) - tR(n)))
+
+    Args:
+        rt_compound: retention time of the target compound (seconds)
+        alkane_rts: list of alkane retention times (seconds), sorted ascending
+        alkane_carbons: list of carbon numbers matching alkane_rts
+    """
+    alkane_rts = np.array(alkane_rts, dtype=np.float64)
     alkane_carbons = np.array(alkane_carbons)
 
     idx = np.searchsorted(alkane_rts, rt_compound) - 1
@@ -145,16 +178,8 @@ alkane_rts = [180.2, 240.5, 310.1, 385.7, 462.3, 540.8, 621.4, 703.9,
               1426.0, 1523.4, 1622.1, 1722.3, 1823.8, 1926.5, 2030.7, 2136.2]
 alkane_carbons = list(range(8, 31))
 
-ri = kovats_ri(rt_compound=450.0, alkane_rts=alkane_rts, alkane_carbons=alkane_carbons)
-print(f"Kovats RI: {ri:.0f}")
-```
-
-**Linear Retention Index** (simpler, widely used for temperature-programmed GC):
-
-```python
-def linear_ri(rt_compound, alkane_rts, alkane_carbons):
-    """Linear RI is equivalent to Kovats for temperature-programmed GC."""
-    return kovats_ri(rt_compound, alkane_rts, alkane_carbons)
+ri = linear_ri(rt_compound=450.0, alkane_rts=alkane_rts, alkane_carbons=alkane_carbons)
+print(f"Linear RI: {ri:.0f}")
 ```
 
 ### 4. Spectral Deconvolution and Library Matching with matchms
@@ -265,7 +290,7 @@ print(f"Centroided spectra: {centroided.getNrSpectra()}")
 
 ### Derivatization Artifacts
 
-TMS derivatization produces multiple derivatives per metabolite:
+TMS (trimethylsilyl) derivatization is the most common approach for GC-MS metabolomics. Common reagents include MSTFA (N-Methyl-N-(trimethylsilyl)trifluoroacetamide) and BSTFA (N,O-Bis(trimethylsilyl)trifluoroacetamide), often with 1% TMCS as catalyst. TMS derivatization produces multiple derivatives per metabolite:
 
 ```python
 # Common TMS artifacts to flag and exclude

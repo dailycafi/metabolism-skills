@@ -123,7 +123,6 @@ plt.close()
 ```python
 from pyimzml.ImzMLParser import ImzMLParser
 import numpy as np
-from scipy.interpolate import interp1d
 
 def build_datacube(parser, mz_min=100, mz_max=1000, bin_width=0.1):
     """Build a 3D datacube from imzML with uniform m/z binning.
@@ -359,7 +358,7 @@ significant.to_csv("roi_comparison.csv", index=False)
 ## DESI-MSI Overview
 
 DESI (Desorption Electrospray Ionization) MSI operates under ambient conditions and produces imzML files compatible with the same processing pipeline above. Key differences:
-- Spatial resolution typically 50-200 um (vs 10-50 um for MALDI)
+- Spatial resolution typically 50-200 um (vs 10-100 um for MALDI)
 - Softer ionization preserves intact lipids and drug metabolites
 - No matrix application required
 - Data files use the same imzML/ibd format; parse identically with pyimzML

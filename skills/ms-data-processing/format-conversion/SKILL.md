@@ -22,10 +22,10 @@ Use this skill when converting raw instrument files to mzML or mzXML, interconve
 | Vendor | Format | Extension | Platform | Notes |
 |--------|--------|-----------|----------|-------|
 | Thermo Fisher | RAW | `.raw` | Windows | Most common in proteomics/metabolomics |
-| AB SCIEX | WIFF | `.wiff`, `.wiff2` | Windows | Requires `.wiff.scan` sidecar file |
+| AB SCIEX | WIFF | `.wiff`, `.wiff2` | Windows | `.wiff` requires `.wiff.scan` sidecar; `.wiff2` requires `.wiff2.scan` |
 | Agilent | MassHunter | `.d` (directory) | Windows | Directory containing `AcqData/` |
-| Waters | MassLynx | `.raw` (directory) | Windows | Directory, not single file |
-| Bruker | BAF/TDF | `.d` (directory) | Windows/Linux | timsTOF uses `.tdf` inside `.d` |
+| Waters | MassLynx | `.raw` (directory) | Windows | **Directory**, not a single file (unlike Thermo `.raw`) |
+| Bruker | BAF/TDF | `.d` (directory) | Windows/Linux | Contains `ser`/`fid` files; timsTOF uses `.tdf`/`.tdf_bin` inside `.d` |
 
 ## Installation
 
@@ -64,13 +64,13 @@ uv pip install pyopenms
 
 ```bash
 # Convert a single Thermo RAW file to mzML
-msconvert sample.raw --mzML --output /data/converted/
+msconvert sample.raw --mzML --outdir /data/converted/
 
 # Convert with centroiding (recommended for most workflows)
-msconvert sample.raw --mzML --filter "peakPicking vendor msLevel=1-2" --output /data/converted/
+msconvert sample.raw --mzML --filter "peakPicking vendor msLevel=1-2" --outdir /data/converted/
 
 # Convert to mzXML instead
-msconvert sample.raw --mzXML --filter "peakPicking vendor msLevel=1-2" --output /data/converted/
+msconvert sample.raw --mzXML --filter "peakPicking vendor msLevel=1-2" --outdir /data/converted/
 ```
 
 ### 2. Centroid vs Profile Mode

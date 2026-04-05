@@ -27,8 +27,8 @@ package and adapt the example to match the actual API rather than retrying.
 ```bash
 pip install rdkit pandas numpy scipy scikit-learn matplotlib requests
 
-# R package (for MetaboAnalystR section)
-Rscript -e 'install.packages("MetaboAnalystR", repos = "https://cran.r-project.org")'
+# R package (for MetaboAnalystR section) — NOT on CRAN, install from GitHub
+Rscript -e 'devtools::install_github("xia-lab/MetaboAnalystR", build_vignettes = FALSE)'
 ```
 
 ## Drug Metabolite Profiling: Pre-dose vs Post-dose
@@ -281,9 +281,13 @@ print(metabolites.to_string(index=False))
 **Approach:** Use the DrugBank API to retrieve metabolizing enzymes, transporters, and known metabolites for a drug.
 
 ```python
+import os
 import requests
 
-DRUGBANK_API_KEY = "your_api_key_here"  # Set via environment variable in production
+# DrugBank API requires a paid subscription (https://go.drugbank.com/api)
+DRUGBANK_API_KEY = os.environ.get("DRUGBANK_API_KEY")
+if not DRUGBANK_API_KEY:
+    raise EnvironmentError("Set DRUGBANK_API_KEY environment variable (requires paid subscription)")
 
 def query_drugbank(drugbank_id):
     """Query DrugBank API for drug metabolism information."""

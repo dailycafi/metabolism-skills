@@ -1,6 +1,6 @@
 ---
 name: isotope-flux-analysis
-description: 13C metabolic flux analysis (13C-MFA) pipeline covering experimental design for isotope labeling, mass isotopomer distribution measurement, natural abundance correction, and flux estimation. Use for quantifying intracellular metabolic fluxes from 13C tracer experiments using LC-MS or GC-MS isotopomer data. Primarily Python-based with IsoCor and COBRApy.
+description: 13C metabolic flux analysis (13C-MFA) pipeline covering experimental design for isotope labeling, mass isotopomer distribution measurement, natural abundance correction, and flux estimation. Use for quantifying intracellular metabolic fluxes from 13C tracer experiments using LC-MS or GC-MS isotopomer data. Python-based correction with IsoCor; dedicated 13C-MFA solvers (INCA, OpenFLUX) are MATLAB-based.
 tool_type: python
 primary_tool: isocor
 ---
@@ -23,6 +23,7 @@ uv pip install isocor cobra pandas numpy scipy matplotlib
 
 ```python
 import isocor
+from isocor import MetaboliteCorrectorFactory
 import cobra
 print(f"IsoCor version: {isocor.__version__}")
 print(f"COBRApy version: {cobra.__version__}")
@@ -129,13 +130,14 @@ check_enrichment(citrate_mid, n_carbons=6)
 ### 3. Natural Abundance Correction with IsoCor
 
 IsoCor corrects measured MIDs for natural isotope abundance of C, H, N, O, Si, and S.
+The `correct()` method returns a 4-tuple: `(corrected_area, isotopologue_fraction, residuum, mean_enrichment)`.
 
 ```python
-import isocor
+from isocor import MetaboliteCorrectorFactory
 
 # Define the metabolite and correction parameters
 # Citrate: C6H8O7, measured as [M-H]- by LC-MS
-metabolite = isocor.MetaboliteCorrectorFactory(
+corrector = MetaboliteCorrectorFactory(
     formula="C6H8O7",
     tracer="13C",
     resolution=60000,           # Orbitrap resolution at m/z 200
@@ -145,17 +147,20 @@ metabolite = isocor.MetaboliteCorrectorFactory(
     derivative_formula="",       # No derivatization for LC-MS
 )
 
-# Measured (uncorrected) MID
-measured_mid = [0.063, 0.037, 0.175, 0.077, 0.228, 0.051, 0.369]
+# Measured (uncorrected) peak areas for M+0 through M+6
+measured_areas = [15200, 8900, 42300, 18700, 55100, 12400, 89200]
 
 # Correct for natural abundance
-corrected_mid, residuum, is_valid = metabolite.correct(measured_mid)
+# Returns: corrected_area, isotopologue_fraction (MID), residuum, mean_enrichment
+corrected_area, isotopologue_fraction, residuum, mean_enrichment = corrector.correct(
+    measured_areas
+)
 
-print("Corrected MID:")
-for i, fraction in enumerate(corrected_mid):
+print("Corrected MID (isotopologue fractions):")
+for i, fraction in enumerate(isotopologue_fraction):
     print(f"  M+{i}: {fraction:.4f}")
+print(f"Mean 13C enrichment: {mean_enrichment:.4f}")
 print(f"Residuum: {residuum:.6f}")
-print(f"Valid correction: {is_valid}")
 ```
 
 #### Batch Correction for Multiple Metabolites
@@ -171,24 +176,40 @@ METABOLITES = {
 
 def batch_correct_mids(measured_data, metabolites, resolution=60000,
                        tracer_purity=0.99):
-    """Correct MIDs for a batch of metabolites."""
+    """Correct MIDs for a batch of metabolites.
+
+    Args:
+        measured_data: dict of {metabolite_name: raw peak areas list}
+        metabolites: dict of {metabolite_name: {"formula": str}}
+        resolution: MS resolution (use 1 for unit-mass GC-MS)
+        tracer_purity: fraction of 13C in tracer (e.g., 0.99)
+
+    Returns:
+        dict with corrected MID, mean enrichment, and residuum per metabolite
+    """
     corrected = {}
-    for name, raw_mid in measured_data.items():
+    for name, raw_areas in measured_data.items():
         if name not in metabolites:
             continue
-        corrector = isocor.MetaboliteCorrectorFactory(
+        corrector = MetaboliteCorrectorFactory(
             formula=metabolites[name]["formula"], tracer="13C",
             resolution=resolution, mz_of_resolution=200,
             tracer_purity=[0.0, tracer_purity], correct_NA_tracer=True,
         )
-        mid_corrected, residuum, valid = corrector.correct(raw_mid)
-        corrected[name] = {"mid": list(mid_corrected), "residuum": residuum, "valid": valid}
+        corrected_area, isotopologue_fraction, residuum, mean_enr = corrector.correct(
+            raw_areas
+        )
+        corrected[name] = {
+            "mid": list(isotopologue_fraction),
+            "mean_enrichment": mean_enr,
+            "residuum": residuum,
+        }
     return corrected
 
 measured = {
-    "pyruvate": [0.45, 0.12, 0.18, 0.25],
-    "lactate": [0.42, 0.14, 0.19, 0.25],
-    "citrate": [0.06, 0.04, 0.17, 0.08, 0.23, 0.05, 0.37],
+    "pyruvate": [45000, 12000, 18000, 25000],   # raw peak areas, not fractions
+    "lactate": [42000, 14000, 19000, 25000],
+    "citrate": [6000, 4000, 17000, 8000, 23000, 5000, 37000],
 }
 results = batch_correct_mids(measured, METABOLITES)
 ```
@@ -200,7 +221,7 @@ GC-MS requires accounting for derivatization atoms:
 ```python
 # For GC-MS with TMS derivatization, include derivative formula
 # Example: alanine-2TMS has formula C3H7NO2, derivative adds C6H18Si2O
-ala_corrector = isocor.MetaboliteCorrectorFactory(
+ala_corrector = MetaboliteCorrectorFactory(
     formula="C3H7NO2",
     tracer="13C",
     resolution=1,                # unit mass resolution for GC-MS
@@ -212,7 +233,7 @@ ala_corrector = isocor.MetaboliteCorrectorFactory(
 
 # Fragment-specific correction: use only the fragment formula
 # Alanine m/z 116 fragment: [M-COOTMS]+, retains C2 backbone
-ala_frag_corrector = isocor.MetaboliteCorrectorFactory(
+ala_frag_corrector = MetaboliteCorrectorFactory(
     formula="C2H6NO",            # fragment contains 2 of 3 alanine carbons
     tracer="13C",
     resolution=1,
@@ -223,9 +244,12 @@ ala_frag_corrector = isocor.MetaboliteCorrectorFactory(
 )
 ```
 
-### 5. Stoichiometric Modeling with COBRApy
+### 5. Stoichiometric Network Definition with COBRApy
 
-Build a metabolic network model as the basis for flux fitting:
+Define the metabolic network stoichiometry that underlies the flux model. Note: COBRApy
+performs FBA (linear programming on mass balances), which is fundamentally different from
+13C-MFA (nonlinear fitting of isotopomer data). Here we use COBRApy only to define the
+network structure; the actual 13C-MFA fitting uses the scipy-based optimizer in section 6.
 
 ```python
 import cobra
@@ -348,16 +372,27 @@ def compute_flux_ci(best_fluxes, measured_mids, simulate_fn, metabolite_names,
 
 ### 8. INCA and OpenFLUX Workflow Overview
 
-INCA (MATLAB-based, Vanderbilt) is the most widely used dedicated 13C-MFA tool. OpenFLUX is the primary open-source alternative (also MATLAB, uses EMU framework).
+INCA (MATLAB-based, Vanderbilt, closed-source) is the most widely used dedicated 13C-MFA
+tool. OpenFLUX is the primary open-source alternative (also MATLAB-based, uses the EMU
+decomposition framework). There is currently no widely adopted pure-Python 13C-MFA solver
+-- COBRApy does constraint-based FBA but NOT isotope-resolved MFA.
+
+**Key distinction -- FBA vs 13C-MFA:**
+- **FBA** uses linear programming on steady-state mass balances (no labeling data needed)
+- **13C-MFA** fits mass isotopomer distribution (MID) data using nonlinear least-squares
+  optimization, requiring atom (carbon) transition maps for every reaction
 
 **Typical INCA/OpenFLUX workflow:**
 1. Define metabolic network with atom (carbon) transition maps for each reaction
 2. Import corrected MIDs and measured extracellular fluxes as constraints
 3. Run multi-start flux estimation (50-100 restarts)
-4. Compute 95% confidence intervals via parameter continuation
+4. Compute 95% confidence intervals via parameter continuation (chi-square threshold)
 5. Export flux maps and statistics
 
-**Python-based alternative:** combine IsoCor (correction) + COBRApy (model) + scipy (optimization) as shown above. The EMU simulation step (forward labeling simulation) is the most complex part and is best handled by INCA or OpenFLUX.
+**Python-based partial alternative:** combine IsoCor (natural abundance correction) +
+COBRApy (network stoichiometry definition) + scipy (nonlinear optimization) as shown
+above. The EMU simulation step (forward labeling simulation from fluxes to predicted MIDs)
+is the most complex part and is best handled by INCA or OpenFLUX for real datasets.
 
 ## Steady-State Verification
 

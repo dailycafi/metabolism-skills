@@ -7,7 +7,7 @@ primary_tool: plink
 
 ## Version Compatibility
 
-Reference examples tested with: PLINK 1.9+, PLINK 2.0+, coloc 5.2+, TwoSampleMR 0.5+
+Reference examples tested with: PLINK 1.9 (clumping), PLINK 2.0+ (association), coloc 5.2+, TwoSampleMR 0.5+, qqman 0.1.9+
 
 Before using code patterns, verify installed versions match. If versions differ:
 - CLI: `plink --version` or `plink2 --version`
@@ -25,11 +25,17 @@ package and adapt the example to match the actual API rather than retrying.
 ## Installation
 
 ```bash
-# PLINK 2.0
+# PLINK 2.0 (association testing)
 wget https://s3.amazonaws.com/plink2-assets/alpha5/plink2_linux_x86_64_20231018.zip
 unzip plink2_linux_x86_64_20231018.zip
 chmod +x plink2
 sudo mv plink2 /usr/local/bin/
+
+# PLINK 1.9 (required for --clump, which is not available in PLINK 2.0)
+wget https://s3.amazonaws.com/plink1-assets/plink_linux_x86_64_20231018.zip
+unzip plink_linux_x86_64_20231018.zip
+chmod +x plink
+sudo mv plink /usr/local/bin/
 
 # R packages
 Rscript -e '
@@ -113,7 +119,10 @@ for METAB in glucose lactate alanine; do
 done
 
 # Extract genome-wide significant mQTLs (p < 5e-8)
-awk 'NR==1 || $12 < 5e-8' mgwas_glucose.glucose.glm.linear > mgwas_glucose_significant.txt
+# Use header-based column selection (P column position varies by PLINK2 version)
+head -1 mgwas_glucose.glucose.glm.linear > mgwas_glucose_significant.txt
+awk -F'\t' 'NR==1{for(i=1;i<=NF;i++) if($i=="P") pcol=i; next} $pcol+0 < 5e-8' \
+  mgwas_glucose.glucose.glm.linear >> mgwas_glucose_significant.txt
 ```
 
 ## mQTL Identification and Annotation
@@ -124,13 +133,14 @@ awk 'NR==1 || $12 < 5e-8' mgwas_glucose.glucose.glm.linear > mgwas_glucose_signi
 
 ```bash
 # Clump associated SNPs into independent loci
-plink2 \
+# NOTE: --clump is only available in PLINK 1.9, not PLINK 2.0
+plink \
   --bfile genotypes_qc \
   --clump mgwas_glucose.glucose.glm.linear \
   --clump-p1 5e-8 \
   --clump-p2 1e-5 \
   --clump-r2 0.1 \
-  --clump-kb 500 \
+  --clump-kb 1000 \
   --out mgwas_glucose_clumped
 ```
 
@@ -139,7 +149,7 @@ library(httr)
 library(jsonlite)
 
 # Read clumped mQTL results
-mqtls <- read.table("mgwas_glucose_clumped.clumps", header = TRUE)
+mqtls <- read.table("mgwas_glucose_clumped.clumped", header = TRUE)
 
 # Query HMDB for metabolite information
 query_hmdb <- function(metabolite_name) {
@@ -233,7 +243,8 @@ dataset_mqtl <- list(
   position = mqtl_region$POS,
   type = "quant",
   N = 5000,
-  MAF = mqtl_region$A1_FREQ
+  MAF = mqtl_region$A1_FREQ,
+  sdY = 1  # sdY = 1 when phenotype is inverse-normal transformed
 )
 
 dataset_disease <- list(
@@ -269,7 +280,7 @@ exposure <- read_exposure_data(
   beta_col = "BETA",
   se_col = "SE",
   effect_allele_col = "A1",
-  other_allele_col = "REF",
+  other_allele_col = "REF",  # Works when A1 == ALT; if A1 can equal REF, use --glm cols=+ax and "AX"
   pval_col = "P",
   eaf_col = "A1_FREQ"
 )
@@ -292,7 +303,8 @@ dat <- harmonise_data(exposure_clumped, outcome)
 mr_results <- mr(dat, method_list = c(
   "mr_ivw",
   "mr_weighted_median",
-  "mr_egger_regression"
+  "mr_egger_regression",
+  "mr_weighted_mode"
 ))
 print(mr_results)
 
@@ -321,7 +333,7 @@ mr_funnel_plot(mr_singlesnp(dat))
 - Always inverse-normal transform metabolite phenotypes before association testing
 - Include population structure covariates (PCs) to avoid confounding
 - Apply genomic control if lambda > 1.05
-- Use LD clumping (r2 < 0.1, 500 kb window) before downstream analyses
+- Use LD clumping (r2 < 0.1, 1000 kb window) before downstream analyses
 - For MR: require F-statistic > 10 for each instrument to avoid weak instrument bias
 - Run multiple MR methods; consistent results across methods strengthen causal claims
 - Check for horizontal pleiotropy with MR-Egger intercept test

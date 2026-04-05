@@ -26,7 +26,7 @@ package and adapt the example to match the actual API rather than retrying.
 
 ```bash
 # Python environment
-pip install scikit-bio pandas scipy matplotlib seaborn networkx
+pip install scikit-bio pandas scipy matplotlib seaborn networkx statsmodels
 
 # mmvec (neural network microbe-metabolite co-occurrence)
 pip install mmvec
@@ -85,6 +85,7 @@ samples[['sample_id'] + [f'{s}_uM' for s in scfa_names]].to_csv('scfa_concentrat
 
 ```python
 import pandas as pd
+import numpy as np
 
 bile_acid_classes = {
     'CA': {'type': 'primary', 'conjugation': 'unconjugated'},
@@ -197,7 +198,6 @@ pcoa_coords.index = otu_table.index
 import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr
-from scipy.special import log1p
 
 otu_table = pd.read_csv('otu_table.csv', index_col='sample_id')
 metab_table = pd.read_csv('metabolomics.csv', index_col='sample_id')
@@ -241,7 +241,7 @@ pval_df = pd.DataFrame(pval_matrix, index=otu_clr.columns, columns=metab_log.col
 biom convert -i otu_table.tsv -o microbes.biom --table-type="OTU table" --to-hdf5
 biom convert -i metabolite_table.tsv -o metabolites.biom --table-type="OTU table" --to-hdf5
 
-# Run mmvec
+# Run mmvec (standalone CLI; also available as QIIME 2 plugin: qiime mmvec paired-omics)
 mmvec paired-omics \
     --microbe-file microbes.biom \
     --metabolite-file metabolites.biom \
@@ -316,8 +316,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import networkx as nx
-from scipy.stats import false_discovery_control
-
 from statsmodels.stats.multitest import multipletests
 
 _, pval_corrected, _, _ = multipletests(pval_df.values.flatten(), method='fdr_bh')
