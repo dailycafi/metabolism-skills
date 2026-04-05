@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.Rhistory
+.RData
+.DS_Store
+/tmp/
+*.egg-info/
+.env
