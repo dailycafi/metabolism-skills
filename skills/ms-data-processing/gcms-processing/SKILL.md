@@ -11,6 +11,14 @@ primary_tool: matchms
 
 GC-MS metabolomics requires specialized workflows distinct from LC-MS: electron ionization (EI) fragmentation produces reproducible spectra suitable for library matching, but introduces challenges like derivatization artifacts, column bleed interference, and co-eluting peaks requiring deconvolution. This skill covers the full pipeline from raw data through metabolite identification.
 
+## Version Compatibility
+
+Reference examples tested with: matchms 0.18-0.26, pyopenms 3.x, xcms 4.x
+
+The matchms API for `Scores` objects and `CosineGreedy.pair()` return types changed
+across versions. If code throws `TypeError` or `KeyError`, introspect the return value
+(e.g., `print(type(result), result)`) and adapt the unpacking accordingly.
+
 ## Installation
 
 ### Python Tools
@@ -219,8 +227,13 @@ scores = calculate_scores(references, queries, similarity)
 # Extract best matches per query
 for i, query in enumerate(queries):
     best = scores.scores_by_query(query, "CosineGreedy_score", sort=True)
-    top_matches = [(ref, score, n_matches) for ref, (score, n_matches) in best[:3]
-                   if score > 0.7 and n_matches >= 6]
+    # Each entry is (reference, score_object); access style depends on matchms version
+    top_matches = []
+    for ref, score_obj in best[:3]:
+        sc = float(score_obj["score"] if isinstance(score_obj, dict) else score_obj[0])
+        nm = int(score_obj["matches"] if isinstance(score_obj, dict) else score_obj[1])
+        if sc > 0.7 and nm >= 6:
+            top_matches.append((ref, sc, nm))
     if top_matches:
         ref, score, n_matches = top_matches[0]
         name = ref.get("compound_name", "Unknown")
@@ -243,12 +256,14 @@ def nist_match_with_ri(query_spectrum, query_ri, references, ri_tolerance=20):
         if ref_ri is not None and abs(float(ref_ri) - query_ri) <= ri_tolerance:
             score_pair = similarity.pair(ref, query_spectrum)
             if score_pair is not None:
-                score_val, n_matches = score_pair
+                # matchms >= 0.18 returns a dict-like object; older versions return a tuple
+                score_val = float(score_pair["score"] if isinstance(score_pair, dict) else score_pair[0])
+                n_matches = int(score_pair["matches"] if isinstance(score_pair, dict) else score_pair[1])
                 if score_val > 0.6 and n_matches >= 5:
                     candidates.append({
                         "name": ref.get("compound_name", "Unknown"),
-                        "score": float(score_val),
-                        "matched_peaks": int(n_matches),
+                        "score": score_val,
+                        "matched_peaks": n_matches,
                         "ri_diff": abs(float(ref_ri) - query_ri),
                     })
 

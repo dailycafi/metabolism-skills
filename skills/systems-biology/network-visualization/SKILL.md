@@ -64,7 +64,7 @@ builder = escher.Builder(
     identifiers_on_map="bigg_id",
 )
 
-# Display in Jupyter
+# Display in Jupyter (in recent Escher, just return `builder` from a cell)
 builder.display_in_notebook()
 ```
 
@@ -113,6 +113,12 @@ export menu or take a screenshot approach.
 
 ```python
 import escher
+import cobra
+
+# Generate flux data (or reuse from a previous FBA run)
+model = cobra.io.load_model("textbook")
+solution = model.optimize()
+flux_data = {rxn.id: solution.fluxes[rxn.id] for rxn in model.reactions}
 
 builder = escher.Builder(
     map_name="e_coli_core.Core metabolism",
@@ -122,9 +128,6 @@ builder = escher.Builder(
 
 # Save as standalone HTML (interactive, good for supplementary materials)
 builder.save_html("flux_map.html")
-
-# Save with bundled JS for offline viewing
-builder.save_html("flux_map_embedded.html", js_source="local")
 
 # For static SVG/PNG for publication figures:
 # 1. Open the HTML in a browser

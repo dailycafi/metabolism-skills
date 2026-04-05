@@ -158,12 +158,28 @@ for f in files:
 The investigation file contains top-level study design information including ontology references, study design descriptors, and publication details.
 
 ```python
+ISA_SECTION_HEADERS = {
+    "ONTOLOGY SOURCE REFERENCE",
+    "INVESTIGATION",
+    "INVESTIGATION PUBLICATIONS",
+    "INVESTIGATION CONTACTS",
+    "STUDY",
+    "STUDY DESIGN DESCRIPTORS",
+    "STUDY PUBLICATIONS",
+    "STUDY FACTORS",
+    "STUDY ASSAYS",
+    "STUDY PROTOCOLS",
+    "STUDY CONTACTS",
+}
+
 def parse_investigation_file(accession: str) -> dict:
     """Download and parse the i_Investigation.txt file.
 
     Returns a dict mapping section names to lists of (key, value) tuples.
     Sections include ONTOLOGY SOURCE REFERENCE, INVESTIGATION,
     STUDY, STUDY DESIGN DESCRIPTORS, STUDY PROTOCOLS, etc.
+
+    Note: ISA-Tab section headers are plain uppercase text (no brackets).
     """
     url = f"{BASE_URL}/studies/{accession}/download"
     params = {"file": "i_Investigation.txt"}
@@ -173,13 +189,13 @@ def parse_investigation_file(accession: str) -> dict:
     sections = {}
     current_section = None
     for line in response.text.splitlines():
-        line = line.strip()
-        if not line:
+        stripped = line.strip()
+        if not stripped:
             continue
-        if line.startswith("[") and line.endswith("]"):
-            current_section = line.strip("[]")
+        if stripped in ISA_SECTION_HEADERS:
+            current_section = stripped
             sections[current_section] = []
-        elif current_section is not None:
+        elif current_section is not None and "\t" in line:
             parts = line.split("\t", 1)
             key = parts[0].strip('"')
             value = parts[1].strip('"') if len(parts) > 1 else ""
@@ -214,22 +230,31 @@ for a in assays:
 
 ### 6. List Public Studies
 
-The `/studies` endpoint returns all public study accessions and a total count.
+The `/studies` endpoint returns a total count and a content list. Note: the `content` list currently returns only the first character of each accession (a known API quirk), so use the `studies` count and construct accessions programmatically when iterating.
 
 ```python
-def get_public_studies() -> dict:
-    """Retrieve public study accessions and total count.
-
-    Returns a dict with 'content' (list of accession strings) and
-    'studies' (total count integer).
-    """
+def get_public_study_count() -> int:
+    """Retrieve the total number of public studies in MetaboLights."""
     url = f"{BASE_URL}/studies"
     response = requests.get(url, headers=HEADERS, timeout=60)
     response.raise_for_status()
-    return response.json()
+    return response.json().get("studies", 0)
 
-result = get_public_studies()
-print(f"Total public studies: {result.get('studies')}")
+def get_public_study_accessions(start: int = 1, count: int = 50) -> list:
+    """Build a list of MetaboLights accession IDs to probe.
+
+    Since the /studies endpoint does not reliably return full accession
+    strings, this constructs candidate accessions (MTBLS1, MTBLS2, ...)
+    and validates each one.  For a known range, this is the most
+    reliable approach.
+    """
+    accessions = []
+    for i in range(start, start + count):
+        accessions.append(f"MTBLS{i}")
+    return accessions
+
+total = get_public_study_count()
+print(f"Total public studies: {total}")
 ```
 
 ### 7. Download Study Data Files

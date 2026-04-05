@@ -23,7 +23,7 @@ package and adapt the example to match the actual API rather than retrying.
 ## Installation
 
 ```bash
-pip install pyimzml numpy scipy scikit-learn scikit-image matplotlib pandas
+pip install pyimzml numpy scipy scikit-learn scikit-image matplotlib pandas statsmodels
 ```
 
 ## Parse imzML Files

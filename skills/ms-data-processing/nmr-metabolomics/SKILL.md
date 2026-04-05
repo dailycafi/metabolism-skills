@@ -54,7 +54,10 @@ dic, fid = ng.bruker.read("bruker_experiment_dir/")
 fid = ng.proc_base.zf_size(fid, 65536)
 
 # Apply exponential line broadening (0.3 Hz typical for metabolomics)
-fid = ng.proc_base.em(fid, lb=0.3)
+# proc_base.em expects lb as a fraction of the FID length, not in Hz.
+# Convert Hz to the fractional parameter: lb = Hz / spectral_width
+sw = dic["acqus"]["SW_h"]  # spectral width in Hz from Bruker acqus
+fid = ng.proc_base.em(fid, lb=0.3 / sw)
 
 # Fourier transform
 spectrum = ng.proc_base.fft(fid)
@@ -136,7 +139,7 @@ def reference_to_tsp(ppm_scale, spectrum_real, tsp_region=(-0.05, 0.05)):
 
 # Generate ppm scale from Bruker parameters
 udic = ng.bruker.guess_udic(dic, fid)
-uc = ng.fileiobase.uc_from_udic(udic)
+uc = ng.fileiobase.uc_from_udic(udic, dim=0)
 ppm_scale = uc.ppm_scale()
 
 ppm_referenced = reference_to_tsp(ppm_scale, spectrum_corrected)
@@ -307,12 +310,13 @@ for hit in identifications:
 # Load 2D HSQC Bruker data
 dic_2d, data_2d = ng.bruker.read("hsqc_experiment_dir/")
 
-# Process direct dimension (1H) - operates on last axis
-data_2d = ng.proc_base.zf_size(data_2d, (512, 4096))
+# Process direct dimension (1H) - zf_size operates on the last axis
+data_2d = ng.proc_base.zf_size(data_2d, 4096)
 data_2d = ng.proc_base.fft(data_2d)
 
 # Process indirect dimension (13C) - transpose, process, transpose back
 data_2d = data_2d.T
+data_2d = ng.proc_base.zf_size(data_2d, 512)
 data_2d = ng.proc_base.fft(data_2d)
 data_2d = data_2d.T
 

@@ -103,7 +103,7 @@ plink2 \
   --pheno-name glucose \
   --covar covariates.txt \
   --covar-name age,sex,PC1,PC2,PC3,PC4,PC5 \
-  --glm hide-covar \
+  --glm hide-covar cols=+a1freq \
   --out mgwas_glucose
 
 # Loop over multiple metabolites
@@ -114,7 +114,7 @@ for METAB in glucose lactate alanine; do
     --pheno-name "$METAB" \
     --covar covariates.txt \
     --covar-name age,sex,PC1,PC2,PC3,PC4,PC5 \
-    --glm hide-covar \
+    --glm hide-covar cols=+a1freq \
     --out "mgwas_${METAB}"
 done
 
@@ -137,6 +137,7 @@ awk -F'\t' 'NR==1{for(i=1;i<=NF;i++) if($i=="P") pcol=i; next} $pcol+0 < 5e-8' \
 plink \
   --bfile genotypes_qc \
   --clump mgwas_glucose.glucose.glm.linear \
+  --clump-snp-field ID \
   --clump-p1 5e-8 \
   --clump-p2 1e-5 \
   --clump-r2 0.1 \
