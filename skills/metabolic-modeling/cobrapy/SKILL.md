@@ -1,6 +1,6 @@
 ---
 name: cobrapy
-description: Constraint-based metabolic modeling (COBRA). FBA, FVA, gene knockouts, flux sampling, SBML models, for systems biology and metabolic engineering analysis.
+description: "Constraint-based metabolic modeling with COBRApy. Flux balance analysis (FBA), flux variability (FVA), gene knockouts, flux sampling, production envelopes, and gap filling on genome-scale SBML models. Use when: predicting growth rates, optimizing metabolic fluxes, screening gene deletions, or building metabolic models. Triggers: FBA, FVA, COBRA, metabolic model, SBML, flux analysis, gene knockout simulation, metabolic engineering, growth prediction."
 license: GPL-2.0 license
 metadata:
     skill-author: K-Dense Inc.

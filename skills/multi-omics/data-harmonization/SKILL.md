@@ -1,6 +1,6 @@
 ---
 name: bio-multi-omics-data-harmonization
-description: Preprocessing and harmonization of multi-omics data before integration. Covers normalization, batch correction, feature alignment, and missing value handling across data types. Use when preparing multi-omics datasets for integration analysis.
+description: "Harmonize and preprocess multi-omics datasets for integration using MultiAssayExperiment, batch correction, and feature alignment. Use when: user needs to combine datasets from different platforms, correct batch effects across omics, merge omics data, or handle missing values before integration. Triggers: combine datasets, batch effect, merge omics, data harmonization, MultiAssayExperiment, cross-platform normalization, feature alignment, missing value imputation, multi-omics preprocessing, prepare data for integration."
 tool_type: r
 primary_tool: MultiAssayExperiment
 upstream:

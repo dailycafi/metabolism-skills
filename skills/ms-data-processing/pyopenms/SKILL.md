@@ -1,6 +1,6 @@
 ---
 name: pyopenms
-description: Complete mass spectrometry analysis platform. Use for proteomics workflows feature detection, peptide identification, protein quantification, and complex LC-MS/MS pipelines. Supports extensive file formats and algorithms. Best for proteomics, comprehensive MS data processing. For simple spectral comparison and metabolite ID use matchms.
+description: "Full-featured mass spectrometry data processing with pyopenms (OpenMS Python bindings) for LC-MS, LC-MS/MS, and proteomics pipelines. Use when: user needs to read/write mzML files, run feature detection on LC-MS data, process chromatograms, extract ion chromatograms (XIC/EIC), or build complex MS workflows. Triggers: LC-MS data processing, mzML processing, feature detection, peak picking from mzML, chromatogram extraction, OpenMS, pyopenms, MS1/MS2 data, centroiding, mass spectrometry pipeline. For spectral library matching use matchms instead."
 license: 3 clause BSD license
 metadata:
     skill-author: K-Dense Inc.

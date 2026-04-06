@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-pathway-mapping
-description: Map metabolites to biological pathways using KEGG, Reactome, and MetaboAnalyst. Perform pathway enrichment and topology analysis. Use when interpreting metabolomics results in the context of biochemical pathways.
+description: "Map metabolites to KEGG, Reactome, and SMPDB pathways and run enrichment/topology analysis with MetaboAnalyst. Use when: user asks which pathways are affected, wants pathway enrichment from a metabolite list, needs to visualize metabolites on KEGG maps, or interpret metabolomics results biologically. Triggers: pathway enrichment, pathway analysis, KEGG pathway, MetaboAnalyst, which pathways, pathway topology, over-representation analysis, metabolite set enrichment, MSEA, pathway impact, map metabolites to pathways."
 tool_type: r
 primary_tool: MetaboAnalystR
 upstream:

@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-clinical-reporting
-description: Clinical metabolomics for inborn errors of metabolism (IEM) screening, newborn screening panels, and diagnostic reporting. Covers amino acid analysis, acylcarnitine profiling, organic acid analysis, z-score calculation against reference ranges, and clinical decision support with differential diagnosis. Use when interpreting clinical metabolomics results or building IEM screening workflows.
+description: "Interpret clinical metabolomics results for inborn errors of metabolism (IEM) screening, newborn screening, and diagnostic reporting. Use when: user has clinical metabolite panels, needs IEM differential diagnosis, wants to analyze acylcarnitine profiles or amino acid panels, or calculate z-scores against reference ranges. Triggers: newborn screening, IEM, inborn error of metabolism, acylcarnitine, amino acid panel, organic acid analysis, clinical diagnosis, tandem MS screening, PKU, MCADD, maple syrup urine disease, clinical metabolomics, reference range, z-score."
 tool_type: python
 primary_tool: pandas
 ---

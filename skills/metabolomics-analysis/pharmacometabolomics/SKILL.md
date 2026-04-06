@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-analysis-pharmacometabolomics
-description: Pharmacometabolomics workflow for drug response profiling, CYP450 substrate prediction, ADME property estimation, metabolic soft spot prediction, and phase I/II metabolite identification from LC-MS data. Integrates DrugBank API, RDKit molecular descriptors, and MetaboAnalystR for differential analysis. Use when studying drug metabolism, predicting drug-metabolite interactions, or profiling pharmacokinetic responses.
+description: "Study drug metabolism and pharmacokinetic responses using pharmacometabolomics workflows with RDKit, DrugBank, and MetaboAnalystR. Use when: user asks about drug metabolites, CYP450 metabolism, ADME predictions, phase I/II biotransformation, or drug-response metabolite profiling. Triggers: drug metabolism, CYP450, ADME, drug metabolite, phase I metabolism, phase II conjugation, pharmacokinetics, DrugBank, metabolic soft spots, glucuronidation, sulfation, drug-metabolite interaction, pharmacometabolomics, xenobiotic metabolism."
 tool_type: python
 primary_tool: rdkit
 ---

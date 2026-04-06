@@ -1,6 +1,6 @@
 ---
 name: metabolights-database
-description: Access EMBL-EBI MetaboLights via REST API. Search and retrieve metabolomics study metadata, ISA-Tab files, assay data, and study files programmatically. Supports organism, technology, and metabolite-based queries across 2,800+ public studies.
+description: "Search and download public metabolomics study data from EMBL-EBI MetaboLights via REST API (2,800+ studies). Use when: user wants to find metabolomics studies, download study data, retrieve ISA-Tab files, access public metabolomics datasets, or get curated metabolite annotations. Triggers: MetaboLights, MTBLS, download study data, public metabolomics data, ISA-Tab, find metabolomics studies, metabolite assignment file, MAF file, deposited metabolomics, open-access metabolomics repository."
 tool_type: python
 primary_tool: requests
 metadata:

@@ -1,6 +1,6 @@
 ---
 name: bio-systems-biology-metabolic-reconstruction
-description: Build genome-scale metabolic models from genome sequences using CarveMe and gapseq for automated reconstruction. Generate draft models ready for curation and analysis. Use when creating metabolic models for organisms without existing models.
+description: "Build genome-scale metabolic models (GEMs) from genome sequences using CarveMe and gapseq for automated reconstruction. Use when: user wants to build a metabolic model from a genome, create a GEM for a new organism, reconstruct metabolism from FASTA/GenBank, or generate a draft SBML model. Triggers: build metabolic model, genome-scale model, CarveMe, gapseq, metabolic reconstruction, GEM, draft model, SBML generation, organism-specific model, de novo metabolic model, reconstruct metabolism."
 tool_type: cli
 primary_tool: CarveMe
 upstream:

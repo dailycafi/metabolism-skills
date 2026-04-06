@@ -1,6 +1,6 @@
 ---
 name: bio-ms-data-processing-spatial-metabolomics
-description: Spatial metabolomics data processing for MALDI-MSI and DESI-MSI imaging experiments. Covers imzML parsing with pyimzML, ion image generation, tissue region segmentation, coregistration with histology, and ROI-based statistical comparison. Use when analyzing mass spectrometry imaging data to map metabolite distributions across tissue sections.
+description: "Analyze spatial metabolomics data from MALDI and DESI mass spectrometry imaging (MSI) experiments. Use when: user has imzML files, needs ion images for specific m/z values, wants to segment tissue regions by metabolite profiles, or map metabolite distributions across tissue. Triggers: MALDI imaging, MALDI-MSI, DESI-MSI, MSI data, imzML, mass spectrometry imaging, tissue metabolite distribution, ion image, spatial metabolomics, tissue section analysis, metabolite mapping, imaging mass spec, pyimzML."
 tool_type: python
 primary_tool: pyimzml
 ---

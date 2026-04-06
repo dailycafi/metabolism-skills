@@ -1,6 +1,6 @@
 ---
 name: bio-multi-omics-mofa-integration
-description: Multi-Omics Factor Analysis (MOFA2) for unsupervised integration of multiple data modalities. Identifies shared and view-specific sources of variation. Use when integrating RNA-seq, proteomics, methylation, or other omics to discover latent factors driving biological variation across modalities.
+description: "Integrate multiple omics datasets with MOFA2 to discover shared and modality-specific latent factors driving biological variation. Use when: user wants to combine metabolomics with transcriptomics/proteomics, find multi-omics factors, identify shared variation across data types, or run unsupervised multi-omics integration. Triggers: multi-omics factors, shared variation, MOFA, MOFA2, multi-omics integration, latent factors, data modality integration, metabolomics + transcriptomics, factor analysis across omics."
 tool_type: r
 primary_tool: MOFA2
 upstream:

@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-xcms-preprocessing
-description: XCMS3 workflow for LC-MS/MS metabolomics preprocessing. Covers peak detection, retention time alignment, correspondence (grouping), and gap filling. Use when processing raw LC-MS data into a feature table for untargeted metabolomics.
+description: "Preprocess raw LC-MS metabolomics data into a feature table using XCMS3 in R. Use when: user needs peak picking from mzML files, retention time alignment, feature grouping, gap filling, or building an untargeted metabolomics feature table. Triggers: peak picking, feature table, raw data processing, CentWave, XCMS, xcmsSet, untargeted metabolomics preprocessing, chromatographic peak detection, RT alignment, correspondence, obiwarp, feature extraction from LC-MS."
 tool_type: r
 primary_tool: xcms
 upstream:

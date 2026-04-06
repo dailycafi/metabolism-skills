@@ -1,6 +1,6 @@
 ---
 name: isotope-flux-analysis
-description: 13C metabolic flux analysis (13C-MFA) pipeline covering experimental design for isotope labeling, mass isotopomer distribution measurement, natural abundance correction, and flux estimation. Use for quantifying intracellular metabolic fluxes from 13C tracer experiments using LC-MS or GC-MS isotopomer data. Python-based correction with IsoCor; dedicated 13C-MFA solvers (INCA, OpenFLUX) are MATLAB-based.
+description: "Quantify intracellular metabolic fluxes from 13C tracer experiments using isotopomer analysis and MFA solvers. Use when: user has 13C labeling data, needs natural abundance correction, measures mass isotopomer distributions (MIDs), or wants to estimate fluxes from tracer experiments. Triggers: 13C labeling, isotope tracer, MID, mass isotopomer distribution, flux measurement, 13C-MFA, IsoCor, natural abundance correction, U-13C glucose, isotope enrichment, INCA, OpenFLUX, isotopomer, metabolic flux quantification."
 tool_type: python
 primary_tool: isocor
 ---

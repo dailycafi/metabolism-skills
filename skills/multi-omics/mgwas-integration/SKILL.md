@@ -1,6 +1,6 @@
 ---
 name: bio-multi-omics-mgwas-integration
-description: Metabolite-gene association analysis via metabolite genome-wide association studies (mGWAS). Covers PLINK-based GWAS with metabolite phenotypes, colocalization with coloc, Mendelian randomization with TwoSampleMR, and mQTL annotation. Use when linking genetic variants to metabolite levels or inferring causal metabolite-disease relationships.
+description: "Link genetic variants to metabolite levels via mGWAS, mQTL analysis, colocalization, and Mendelian randomization. Use when: user asks about genetic associations with metabolites, needs mQTL mapping, wants Mendelian randomization for metabolite-disease causality, or runs GWAS with metabolomics phenotypes. Triggers: genetic association metabolite, mQTL, Mendelian randomization, GWAS metabolomics, mGWAS, PLINK metabolite, colocalization, TwoSampleMR, causal metabolite, SNP-metabolite association, metabolite heritability."
 tool_type: cli
 primary_tool: plink
 ---

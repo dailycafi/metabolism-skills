@@ -1,6 +1,6 @@
 ---
 name: hmdb-database
-description: Access the Human Metabolome Database (HMDB) via REST API (220,000+ metabolites). Retrieve metabolite details, pathways, disease associations, spectra references, and cross-references to KEGG, PubChem, and ChEBI.
+description: "Look up any metabolite in the Human Metabolome Database (HMDB) via REST API across 220,000+ entries. Use when: user asks 'what is this metabolite', needs an HMDB ID, wants metabolite pathways or disease associations, queries a metabolite database, or needs cross-references to KEGG/PubChem/ChEBI. Triggers: metabolite lookup, HMDB search, metabolite properties, metabolite spectra, metabolite biomarker, compound information, metabolite concentration, biofluid metabolites, serum metabolites, urine metabolites."
 tool_type: python
 primary_tool: requests
 metadata:

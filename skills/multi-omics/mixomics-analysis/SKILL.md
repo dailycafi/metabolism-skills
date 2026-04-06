@@ -1,6 +1,6 @@
 ---
 name: bio-multi-omics-mixomics-analysis
-description: Supervised and unsupervised multi-omics integration with mixOmics. Includes sPLS for pairwise integration and DIABLO for multi-block discriminant analysis. Use when performing supervised multi-omics integration or identifying features that discriminate between groups.
+description: "Perform supervised multi-omics integration and classification with mixOmics (sPLS, sPLS-DA, DIABLO). Use when: user needs multi-omics classification, wants to find discriminant features across omics layers, or integrate metabolomics with other omics in a supervised framework. Triggers: sPLS, DIABLO, multi-omics classification, mixOmics, sparse PLS, multi-block discriminant analysis, feature selection across omics, supervised integration, sPLS-DA, metabolomics + proteomics classification."
 tool_type: r
 primary_tool: mixOmics
 upstream:

@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-statistical-analysis
-description: Statistical analysis for metabolomics data. Covers preprocessing (log2 transformation, normalization), limma moderated testing with empirical Bayes, Welch's t-tests with BH correction, fold change estimation, and multivariate methods (PCA, PLS-DA, OPLS-DA). Use when identifying differentially abundant metabolites or building classification models.
+description: "Run statistical analysis on metabolomics data including univariate testing, multivariate modeling, and visualization. Use when: user wants to find differential metabolites between groups, run PCA on metabolomics data, build PLS-DA or OPLS-DA models, make a volcano plot, or perform t-tests with multiple testing correction. Triggers: differential metabolites, PCA, PLS-DA, OPLS-DA, volcano plot, fold change, limma, t-test metabolomics, heatmap, metabolomics statistics, significant metabolites, multivariate analysis, classification model, biomarker discovery."
 tool_type: mixed
 primary_tool: limma
 upstream:

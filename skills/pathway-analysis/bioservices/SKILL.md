@@ -1,6 +1,6 @@
 ---
 name: bioservices
-description: Unified Python interface to 40+ bioinformatics services. Use when querying multiple databases (UniProt, KEGG, ChEMBL, Reactome) in a single workflow with consistent API. Best for cross-database analysis, ID mapping across services. For quick single-database lookups use gget; for sequence/file manipulation use biopython.
+description: "Query 40+ bioinformatics databases (KEGG, UniProt, ChEMBL, Reactome, ChEBI) from Python with a unified API via bioservices. Use when: user needs to map metabolite IDs across databases, query KEGG pathways/reactions programmatically, retrieve enzyme data from UniProt, search ChEMBL for bioactive compounds, or cross-reference identifiers. Triggers: bioservices, KEGG API, Reactome API, ChEBI lookup, UniProt query, cross-database ID mapping, metabolite ID conversion, enzyme lookup, compound-target interaction, pathway query from Python."
 license: GPLv3 license
 metadata:
     skill-author: K-Dense Inc.

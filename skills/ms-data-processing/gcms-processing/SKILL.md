@@ -1,6 +1,6 @@
 ---
 name: gcms-processing
-description: GC-MS data processing for metabolomics and volatile analysis. Covers peak detection, deconvolution, retention index calculation, and NIST library matching. Use for processing GC-MS raw data, identifying metabolites via spectral matching, and building reproducible GC-MS workflows. Best for EI-based GC-MS metabolomics and volatile profiling.
+description: "Process GC-MS data for metabolomics and volatile compound analysis including peak detection, deconvolution, and NIST library matching. Use when: user has GC-MS data, needs retention index calculation, wants to identify volatiles, match EI spectra against NIST, or process derivatized metabolites. Triggers: GC-MS, gas chromatography, volatile analysis, NIST library, retention index, Kovats index, EI spectrum, electron ionization, deconvolution, AMDIS, TMS derivatives, volatile profiling, headspace analysis, SPME."
 tool_type: python
 primary_tool: matchms
 ---

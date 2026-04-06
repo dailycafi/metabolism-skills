@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-targeted-analysis
-description: Targeted metabolomics analysis using MRM/SRM with standard curves. Covers absolute quantification, method validation, and quality assessment. Use when quantifying specific metabolites using calibration curves and internal standards.
+description: "Perform targeted metabolomics quantification using MRM/SRM transitions, calibration curves, and internal standards. Use when: user needs absolute quantification of metabolites, has MRM/SRM data, wants to build calibration curves, validate a targeted method, or process Skyline output. Triggers: MRM, SRM, calibration curve, absolute quantification, targeted quantification, internal standard, Skyline, targeted metabolomics, LOD, LOQ, method validation, standard curve, concentration calculation, quantitative metabolomics."
 tool_type: mixed
 primary_tool: skyline
 upstream:

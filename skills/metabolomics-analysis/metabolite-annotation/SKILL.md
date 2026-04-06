@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-metabolite-annotation
-description: Metabolite identification from m/z and retention time. Covers database matching, MS/MS spectral matching, and confidence level assignment. Use when assigning compound identities to detected features in untargeted metabolomics.
+description: "Annotate and identify metabolomics features by matching m/z, retention time, and MS/MS spectra against databases. Use when: user has a feature table and wants compound IDs, needs to annotate m/z values, assign metabolite identities with confidence levels, or match features against HMDB/METLIN/MassBank. Triggers: identify features, m/z annotation, compound identification, metabolite ID, putative annotation, MSI confidence levels, adduct matching, ppm tolerance, neutral mass search, what compound is this m/z."
 tool_type: mixed
 primary_tool: HMDB
 upstream:

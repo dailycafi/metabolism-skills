@@ -1,6 +1,6 @@
 ---
 name: nmr-metabolomics
-description: NMR metabolomics processing pipeline for 1D and 2D NMR data. Covers phase correction, baseline correction, chemical shift referencing, spectral binning, peak picking, metabolite identification, and quantification. Use for processing 1H-NMR metabolomics data, identifying metabolites from HMDB/BMRB databases, and performing absolute or relative quantification.
+description: "Process NMR metabolomics data from raw FID through metabolite quantification using nmrglue and speaq. Use when: user has NMR spectra to process, needs phase or baseline correction, wants to identify metabolites from chemical shifts, or quantify metabolites from 1H-NMR. Triggers: NMR spectrum, proton NMR, 1H NMR, 13C NMR, Bruker data, FID processing, chemical shift, ppm, spectral binning, NMR peak picking, BMRB, Chenomx, nmrglue, TOCSY, HSQC, 2D NMR, TSP reference, NMR metabolomics."
 tool_type: python
 primary_tool: nmrglue
 ---

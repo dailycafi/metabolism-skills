@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-normalization-qc
-description: Quality control and normalization for metabolomics data. Covers QC-based correction, batch effect removal, and data transformation methods. Use when correcting technical variation in metabolomics data before statistical analysis.
+description: "Normalize metabolomics data and remove batch effects using QC sample-based correction, LOESS, ComBat, and transformation methods. Use when: user needs to correct batch effects, normalize a metabolomics feature table, apply QC-based drift correction, or prepare data for statistical analysis. Triggers: batch correction, QC samples, normalize metabolomics, batch effect, LOESS correction, ComBat, signal drift, QC-RSC, pooled QC, data transformation, log transformation, PQN normalization, MetaboAnalystR normalization."
 tool_type: r
 primary_tool: MetaboAnalystR
 upstream:

@@ -1,6 +1,6 @@
 ---
 name: bio-metabolomics-msdial-preprocessing
-description: MS-DIAL-based metabolomics preprocessing as alternative to XCMS. Covers peak detection, alignment, annotation, and export for downstream analysis. Use when processing MS-DIAL output files for R/Python analysis or when preferring GUI-based preprocessing.
+description: "Process metabolomics data with MS-DIAL for peak detection, alignment, annotation, and export to feature tables. Use when: user has MS-DIAL output files, wants to import MS-DIAL results into R/Python, needs peak alignment from MS-DIAL, or prefers GUI-based LC-MS preprocessing. Triggers: MS-DIAL, MS-DIAL output, MSDIAL, peak alignment, MS-DIAL export, GUI preprocessing, alternative to XCMS, MS-DIAL console mode, metabolomics feature table from MS-DIAL."
 tool_type: mixed
 primary_tool: msdial
 upstream:

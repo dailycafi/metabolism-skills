@@ -1,6 +1,6 @@
 ---
 name: bio-multi-omics-microbiome-metabolomics
-description: Host-microbiome metabolite interaction analysis integrating 16S/shotgun metagenomics with untargeted and targeted metabolomics. Covers SCFA quantification, bile acid profiling, tryptophan pathway analysis, and microbe-metabolite co-occurrence modeling. Use when linking microbial community composition to metabolic phenotypes.
+description: "Integrate microbiome (16S/shotgun) with metabolomics to analyze host-microbe metabolic interactions. Use when: user has paired microbiome and metabolomics data, asks about gut metabolites, needs SCFA quantification, bile acid profiling, tryptophan metabolism, or microbe-metabolite co-occurrence. Triggers: gut metabolites, SCFA, short-chain fatty acids, bile acids, microbiome, 16S, microbiome-metabolomics, mmvec, microbe-metabolite, tryptophan pathway, indole derivatives, gut-brain axis metabolites, fecal metabolomics."
 tool_type: mixed
 primary_tool: mmvec
 ---

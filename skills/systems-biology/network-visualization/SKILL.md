@@ -1,6 +1,6 @@
 ---
 name: bio-systems-biology-network-visualization
-description: Metabolic network visualization using Escher, py4cytoscape, KEGG API, and NetworkX. Overlay flux data from FBA onto pathway maps, automate Cytoscape sessions, color KEGG pathways, and generate publication-ready figures. Use when visualizing metabolic pathways, flux distributions, or network topology.
+description: "Visualize metabolic networks and overlay flux data onto pathway maps using Escher, Cytoscape, KEGG API, and NetworkX. Use when: user wants to draw a metabolic pathway, create a flux map from FBA results, visualize network topology, or generate publication-ready pathway figures. Triggers: visualize pathway, flux map, Escher, metabolic network diagram, Cytoscape metabolic, KEGG pathway coloring, network visualization, pathway drawing, metabolic map, overlay fluxes, reaction graph, publication figure pathway."
 tool_type: python
 primary_tool: escher
 ---

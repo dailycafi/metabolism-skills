@@ -1,6 +1,6 @@
 ---
 name: ms-format-conversion
-description: Convert mass spectrometry vendor formats (Thermo RAW, AB SCIEX WIFF, Agilent .d, Waters .raw) to open formats (mzML, mzXML) using msConvert CLI and pyopenms. Covers batch conversion, centroid/profile mode, encoding precision, and interconversion workflows.
+description: "Convert mass spectrometry vendor files to open formats using msConvert and pyopenms. Use when: user needs to convert RAW files to mzML, convert WIFF/Agilent .d/Waters .raw to open format, batch convert instrument files, or troubleshoot format issues. Triggers: convert RAW file, mzML conversion, mzXML, vendor format, msConvert, ProteoWizard, Thermo RAW, AB SCIEX WIFF, Agilent .d, Waters .raw, Bruker .d, centroid mode, profile mode, batch conversion, format conversion."
 tool_type: cli
 primary_tool: msconvert
 metadata:
